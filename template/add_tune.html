@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<form enctype="multipart/form-data" method="post">
+		<label>
+        	<div>subject</div> <input type="text" name="tune_name" value={{tune_name}}>
+    	</label>
+    	<div><label>Avatar:</label></div>
+        <div><input type="file" name="img"/></div>
+        <div><input type="submit" value="add tune"></div>
+	</form>
+{% endblock %}
