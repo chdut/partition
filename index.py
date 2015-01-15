@@ -7,7 +7,7 @@ import cgi #for escaping text
 
 from google.appengine.ext import db
 from google.appengine.api import images
-#from google.appengine.ext.webapp import template
+from google.appengine.api import users
 
 template_dir = os.path.join(os.path.dirname(__file__), 'template')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
@@ -15,6 +15,12 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), a
 class Tune(db.Model):
     name = db.StringProperty()
     image = db.BlobProperty()
+    def creat_dict(self):
+        dict = {}
+        dict["name"] = self.name
+        dict["url"] = self.name.replace(" ", "")+".html"
+        dict["key"] = self.key()
+        return dict
     
 def render_str(template, **params):
     t = jinja_env.get_template(template)
@@ -38,16 +44,26 @@ class getImage(webapp2.RequestHandler):
             self.response.out.write(tune.image)
         else:
             self.error(404) 
-                     
+                                
 class Main(Handler):
+    def render_Main(self, list_tunes=""):
+        self.render("list_tune.html", list_tunes = list_tunes)
+    def get(self):
+        tunes = Tune.all()
+        tunes.order('name')  
+        list_tunes = []
+        for tune in tunes :
+            list_tunes.append(tune.creat_dict())            
+        self.render_Main(list_tunes)
+
+class ViewTune(Handler):
     def render_Main(self, title_tune="", Id_tune=""):
         self.render("show_tune.html", title_tune = title_tune, Id_tune=Id_tune)
     def get(self):
-        DbTune = db.Query(Tune)
-        DbTune.filter('name =', "kitty")
-        tune = DbTune.get()
-        if tune :
-            self.render_Main(tune.name,tune.key())
+        key = self.request.get('Id_tune')
+        name = self.request.get('title_tune')
+        if key and name :
+            self.render_Main(name.replace("%20"," "),key.replace("%20",""))
 
 class AddTune(Handler):
     def render_Main(self):
@@ -65,6 +81,7 @@ class AddTune(Handler):
             self.redirect("/")
         
 app = webapp2.WSGIApplication([('/',Main),
+                               ('/tunes', ViewTune),
                                ('/add_tune',AddTune),
                                ('/img',getImage)],
                                debug=True)

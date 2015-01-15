@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<h1>liste Tunes</h1>
+	<form method="post">
+	<ul>
+		{% for tune in list_tunes %}
+		 <li><a href="/tunes?Id_tune={{ tune.key }}&title_tune={{ tune.name }}">{{ tune.name }}</a></li>
+		{% endfor %}
+		
+	</ul>
+	</form>
+{% endblock %}
