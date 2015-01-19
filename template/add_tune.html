@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<form enctype="multipart/form-data" method="post">
+	<form action={{upload_url}} enctype="multipart/form-data" method="post">
 		<label>
         	<div>subject</div> <input type="text" name="tune_name" value={{tune_name}}>
     	</label>

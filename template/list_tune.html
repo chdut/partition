@@ -5,7 +5,7 @@
 	<form method="post">
 	<ul>
 		{% for tune in list_tunes %}
-		 <li><a href="/tunes?Id_tune={{ tune.key }}&title_tune={{ tune.name }}">{{ tune.name }}</a></li>
+		 <li><a href="/tunes?image_key={{tune.image_key}}&title_tune={{ tune.name }}">{{ tune.name }}</a></li>
 		{% endfor %}
 		
 	</ul>
