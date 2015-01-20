@@ -3,10 +3,19 @@
 {% block content %}
 	<form action={{upload_url}} enctype="multipart/form-data" method="post">
 		<label>
-        	<div>subject</div> <input type="text" name="tune_name" value={{tune_name}}>
+        	<div>Title :</div> <input type="text" name="tune_name" id='Title' value={{tune_name}}>
     	</label>
-    	<div><label>Avatar:</label></div>
-        <div><input type="file" name="img"/></div>
+    	<div><label>Score:</label></div>
+        <div><input type="file" id="file" name="img"/></div>
         <div><input type="submit" value="add tune"></div>
 	</form>
+	<script type="text/javascript">
+	var control = document.getElementById('file');
+	var title = document.getElementById('Title');
+	control.addEventListener("change",function(event) {
+			var file_name = control.files[0].name ;
+			title.value = file_name.slice(0,-4);
+		}, false);
+	</script>
+
 {% endblock %}
