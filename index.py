@@ -16,10 +16,13 @@ from google.appengine.ext.webapp import blobstore_handlers
 template_dir = os.path.join(os.path.dirname(__file__), 'template')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
 
+Liste_Dance = ["Reel", "Jigs", "Hornpipe", "Song"]
+
 class Tune(ndb.Model):
     name = ndb.StringProperty() #name of the tune
     image_key = ndb.BlobKeyProperty() # store the id of the blob contening the image
     owner_id = ndb.StringProperty() #owner of the tune, using the id form the users api
+    type_dance = ndb.StringProperty()
     def creat_dict(self): #creat a dictionary to be send to the jinja interpreter
         dict = {}
         dict["name"] = self.name
@@ -56,15 +59,16 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
   def post(self):
     user = users.get_current_user()
     tuneName = self.request.get("tune_name")
+    tuneType = self.request.get("type_dance")
     upload_files = self.get_uploads('img')  # 'file' is file upload field in the form
     blob_info = upload_files[0]
     new_tune = Tune()
     new_tune.image_key = blob_info.key()
     new_tune.name = tuneName
     new_tune.owner_id=user.user_id()
+    new_tune.type_dance = tuneType
     new_tune.put()
     self.redirect("/listtunes")
-    #self.redirect('/serve/%s' % blob_info.key())
 
 class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
   def get(self, resource):
@@ -109,7 +113,7 @@ class ViewTune(Handler):
 
 class AddTune(Handler):
     def render_Main(self, upload_url=""):
-        self.render("add_tune.html",upload_url=upload_url)
+        self.render("add_tune.html",upload_url=upload_url, list_dance = Liste_Dance )
     def get(self):
         upload_url = blobstore.create_upload_url('/upload')
         self.render_Main(upload_url)

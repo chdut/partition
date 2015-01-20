@@ -8,6 +8,11 @@
     	<div><label>Score:</label></div>
         <div><input type="file" id="file" name="img"/></div>
         <div><input type="submit" value="add tune"></div>
+        <div>
+        	{% for dance in list_dance %}
+        		<input type="radio" name="type_dance" value="{{dance}}"> {{dance}} <br>
+        	{% endfor %}
+        </div>
 	</form>
 	<script type="text/javascript">
 	var control = document.getElementById('file');
