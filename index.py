@@ -45,11 +45,12 @@ class Handler(webapp2.RequestHandler):
         if user:
             self.response.headers['Content-Type'] = 'text/html'
             self.response.write('<!doctype html> <html> <p> Hello, ' + user.nickname() + "!You can <a href=\""
-             #                     + users.create_logout_url(self.request.uri) +
                                  + "/logout" +
                                  "\">sign out</a>.</p> </html>")
         else:
-            self.redirect(users.create_login_url(self.request.uri))
+            self.response.write("<!doctype html> <html> <p> Hello,  you aren't log in yet !You can <a href=\""
+                                 + users.create_login_url(self.request.uri) +
+                                 "\">sign in</a>.</p> </html>")
             
 class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
   def post(self):
@@ -112,15 +113,6 @@ class AddTune(Handler):
     def get(self):
         upload_url = blobstore.create_upload_url('/upload')
         self.render_Main(upload_url)
-    #def post(self):
-    #    tuneName = self.request.get("tune_name")
-    #    tuneImage= self.request.get("img")        
-    #    if tuneName and tuneImage :
-    #        new_tune = Tune()
-    #        new_tune.image = tuneImage[0]
-    #        new_tune.name = tuneName
-    #        new_tune.put()
-    #        self.redirect("/listtunes")
 
 class Logout(Handler):
     def get(self):
