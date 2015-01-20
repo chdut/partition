@@ -17,9 +17,10 @@ template_dir = os.path.join(os.path.dirname(__file__), 'template')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
 
 class Tune(ndb.Model):
-    name = ndb.StringProperty()
-    image_key = ndb.BlobKeyProperty()
-    def creat_dict(self):
+    name = ndb.StringProperty() #name of the tune
+    image_key = ndb.BlobKeyProperty() # store the id of the blob contening the image
+    owner_id = ndb.StringProperty() #owner of the tune, using the id form the users api
+    def creat_dict(self): #creat a dictionary to be send to the jinja interpreter
         dict = {}
         dict["name"] = self.name
         dict["html"] = self.name.replace(" ","")+".html"
@@ -44,19 +45,22 @@ class Handler(webapp2.RequestHandler):
         if user:
             self.response.headers['Content-Type'] = 'text/html'
             self.response.write('<!doctype html> <html> <p> Hello, ' + user.nickname() + "!You can <a href=\""
-                                  + users.create_logout_url(self.request.uri) +
+             #                     + users.create_logout_url(self.request.uri) +
+                                 + "/logout" +
                                  "\">sign out</a>.</p> </html>")
         else:
             self.redirect(users.create_login_url(self.request.uri))
             
 class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
   def post(self):
+    user = users.get_current_user()
     tuneName = self.request.get("tune_name")
     upload_files = self.get_uploads('img')  # 'file' is file upload field in the form
     blob_info = upload_files[0]
     new_tune = Tune()
     new_tune.image_key = blob_info.key()
     new_tune.name = tuneName
+    new_tune.owner_id=user.user_id()
     new_tune.put()
     self.redirect("/listtunes")
     #self.redirect('/serve/%s' % blob_info.key())
@@ -86,7 +90,8 @@ class ListTune(Handler):
     def render_Main(self, list_tunes=""):
         self.render("list_tune.html", list_tunes = list_tunes)
     def get(self):
-        tunes = Tune.query().order(Tune.name)  
+        user = users.get_current_user()
+        tunes = Tune.query(Tune.owner_id == user.user_id()).order(Tune.name)  
         list_tunes = []
         for tune in tunes :
             list_tunes.append(tune.creat_dict())            
@@ -107,15 +112,19 @@ class AddTune(Handler):
     def get(self):
         upload_url = blobstore.create_upload_url('/upload')
         self.render_Main(upload_url)
-    def post(self):
-        tuneName = self.request.get("tune_name")
-        tuneImage= self.request.get("img")        
-        if tuneName and tuneImage :
-            new_tune = Tune()
-            new_tune.image = tuneImage[0]
-            new_tune.name = tuneName
-            new_tune.put()
-            self.redirect("/listtunes")
+    #def post(self):
+    #    tuneName = self.request.get("tune_name")
+    #    tuneImage= self.request.get("img")        
+    #    if tuneName and tuneImage :
+    #        new_tune = Tune()
+    #        new_tune.image = tuneImage[0]
+    #        new_tune.name = tuneName
+    #        new_tune.put()
+    #        self.redirect("/listtunes")
+
+class Logout(Handler):
+    def get(self):
+        self.redirect(users.create_logout_url(self.request.uri))
         
 app = webapp2.WSGIApplication([('/',Main),
                                ('/listtunes', ListTune),
@@ -123,5 +132,6 @@ app = webapp2.WSGIApplication([('/',Main),
                                ('/add_tune',AddTune),
                                ('/img',getImage),
                                ('/upload', UploadHandler),
-                               ('/serve/([^/]+)?', ServeHandler)],
+                               ('/serve/([^/]+)?', ServeHandler),
+                               ('/logout', Logout)],
                                debug=True)
