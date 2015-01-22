@@ -29,6 +29,7 @@ class Tune(ndb.Model):
         dict["html"] = self.name.replace(" ","")+".html"
         dict["image_key"]=self.image_key
         dict["key"] = self.key.id()
+        dict["type_dance"] = self.type_dance
         return dict
     
 def render_str(template, **params):
@@ -93,7 +94,7 @@ class Main(Handler):
                                         
 class ListTune(Handler):
     def render_Main(self, list_tunes=""):
-        self.render("list_tune.html", list_tunes = list_tunes)
+        self.render("list_tune.html", list_tunes = list_tunes, list_dance=Liste_Dance)
     def get(self):
         user = users.get_current_user()
         tunes = Tune.query(Tune.owner_id == user.user_id()).order(Tune.name)  

@@ -4,10 +4,21 @@
 	<h1>liste Tunes</h1>
 	<a href="/add_tune">Add a new tune</a>
 	<form method="post">
-	<ul>
-		{% for tune in list_tunes %}
-		 <li><a href="/tunes?image_key={{tune.image_key}}&title_tune={{ tune.name }}">{{ tune.name }}</a></li>
-		{% endfor %}		
-	</ul>
+	{% for dance in list_dance %}
+		<div id="{{dance}}" class='dance'>
+			<h2>{{dance}}</h2>
+			<ul class="{{dance}}"></ul>
+		</div>
+	{% endfor %}
 	</form>
+	
+	<script type="text/javascript">
+		var HTMLtuneLink = '<li><a href="/tunes?image_key=%image_key%&title_tune=%name%">%name%</a></li>';
+		{% for tune in list_tunes %}
+			var tuneLink = HTMLtuneLink.replace("%image_key%","{{tune.image_key}}");
+			tuneLink = tuneLink.replace('%name%',"{{tune.name}}");
+			tuneLink = tuneLink.replace('%name%',"{{tune.name}}");
+			$("ul.{{tune.type_dance}}").append(tuneLink);
+		{% endfor %}
+	</script>
 {% endblock %}
