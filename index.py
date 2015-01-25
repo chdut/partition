@@ -32,6 +32,10 @@ class Tune(ndb.Model):
         dict["type_dance"] = self.type_dance
         return dict
     
+class Session(ndb.Model):
+    name = ndb.StringProperty()
+    tunes = ndb.StringProperty(repeated=True) 
+    
 def render_str(template, **params):
     t = jinja_env.get_template(template)
     return t.render(params)

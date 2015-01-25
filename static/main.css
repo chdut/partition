@@ -1,4 +1,50 @@
+ html {
+            width : 100%;
+            font-size : 18px;
+}
+@media (max-width : 400px) {
+        html {
+            font-size: 14px;
+        }
+        h1 {
+        line-height: 70%;
+        }
+        h2.dance {
+ 				margin: 10px 0px;       
+        }
+        ul {
+				margin: 7px 0px;
+			}	
+			}
+        
+        
+@media (max-width : 300px) {
+        html {
+            font-size: 12px;
+        }
+        h2.dance {
+ 				margin: 10px 0px;       
+        }
+        ul {
+				margin: 7px 0px;
+			}	
+        }
 .logout {
+	right: 0px;
 	position: absolute;
-    right: 0px;
+}
+h1 {
+	font-size : 200%;
+	text-align: center;
+}
+h3.tune {
+	font-size: 150%;
+	text-align: center;
+	line-height: 80%;
+}
+h2.dance {
+	font-size: 150%;	
+}
+#mydiv {
+	width : auto;
 }

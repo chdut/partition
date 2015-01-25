@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<h1>liste Tunes</h1>
+	<h1>Liste Tunes</h1>
 	<a href="/add_tune">Add a new tune</a>
 	<form method="post">
 	{% for dance in list_dance %}
 		<div id="{{dance}}" class='dance'>
-			<h2>{{dance}}</h2>
+			<h2 class="dance">{{dance}}</h2>
 			<ul class="{{dance}}"></ul>
 		</div>
 	{% endfor %}
