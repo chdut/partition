@@ -1,0 +1,2 @@
+commande png
+$lilypond -dpoint-and-click -ddelete-intermediate-files $include --png -dbackend=eps -dresolution=300 -danti-alias-factor=1 -dpixmap-format=pngalpha $filename
