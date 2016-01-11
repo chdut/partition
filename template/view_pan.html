@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<a href="/listtunes">Back to list</a> <a href="/add_tune?key={{ key_safe }} ">modifier</a>
+	<h3 class="tune">{{title_tune}}</h3>
+    <canvas id="myCanvas" class="one_line"></canvas>
+    <button onclick="play()">Play</button>
+    <input type="range" id="myRange" value="100" onchange="change_tempo()" min=0 max=1000>
+	<button onclick="stop()">Stop</button>
+
+	<script type="text/javascript">
+		var length_split = 10000;
+		var list_image = [];
+		{% for image in image_key %}
+	    	var img = new Image();
+	    	img.src = "/serve/{{image}}";
+	    	list_image.push(img);
+	    {% endfor %}
+		var width= document.body.clientWidth;
+		var context;
+		var w_canvas = width;
+		var image_width;
+		var image_height;
+		var tempo=2;
+		var o_tempo = 3;
+		var f = 2000.0/width;
+		var indice_image = 0;
+		var full_context;
+		var last_width;
+		window.onload = function() {
+		    image_width = length_split;
+			var full_canvas = document.createElement('canvas');
+		    full_canvas.width = image_width;
+		    image_height = list_image[0].height;
+		    last_width = list_image[list_image.length - 1].width;
+		    full_canvas.height = image_height * list_image.length;
+		    full_context = full_canvas.getContext("2d");
+			for (var i = 0; i < list_image.length; i++) {
+		   		full_context.drawImage(list_image[i], 0, image_height * i);
+			}
+		    var canvas_image = document.getElementById("myCanvas");
+		    context = canvas_image.getContext("2d");
+		    canvas_image.width = w_canvas;
+		    h_canvas = image_height/f | 0;
+		    canvas_image.height = h_canvas;
+		    context.drawImage(full_context.canvas, -500, 0, w_canvas*f, image_height, 0, 0, w_canvas, h_canvas);
+		};
+		function play(){
+		    request = requestAnimationFrame(next);
+		}
+		var position = -500;
+		length_image = length_split
+		function next(){
+			request = requestAnimationFrame(next);
+            if (position >= length_image) {
+                position = 0;
+                if (indice_image == list_image.length-1) {
+                    indice_image = 0;
+                    length_image = length_split
+                } else {
+                    indice_image += 1;
+                    if (indice_image == list_image.length-1){
+                        length_image = last_width;
+                    }
+                }
+            }
+		    position += tempo;
+		    context.clearRect(0,0, w_canvas, h_canvas);
+		    if (position + w_canvas*f > length_image) {
+				if (indice_image == list_image.length-1) {
+                    alpha = (length_image - position)/f;
+					context.drawImage(full_context.canvas, 0, 0, (w_canvas-alpha)*f, image_height, alpha , 0, w_canvas-alpha, h_canvas);
+				} else {
+					alpha = (length_split - position)/f;
+					context.drawImage(full_context.canvas, 0, image_height * (indice_image +1), (w_canvas-alpha)*f, image_height, alpha , 0, w_canvas-alpha, h_canvas);
+				}
+				context.drawImage(full_context.canvas, position, image_height * (indice_image), alpha*f, image_height, 0, 0, alpha, h_canvas);
+		    } else {
+		        context.drawImage(full_context.canvas, position, image_height * (indice_image), w_canvas*f, image_height, 0, 0, w_canvas, h_canvas);
+            }
+		}
+		function change_tempo(){
+		    var x = document.getElementById("myRange").value;
+		    tempo = o_tempo * x / 50 | 0;
+		}
+		function stop() {
+			cancelAnimationFrame(request);
+		}
+	</script>
+{% endblock %}

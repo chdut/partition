@@ -3,22 +3,26 @@
 {% block content %}
 	<h1>Liste Tunes</h1>
 	<a href="/add_tune">Add a new tune</a>
-	<form method="post">
 	{% for dance in list_dance %}
 		<div id="{{dance}}" class='dance'>
 			<h2 class="dance">{{dance}}</h2>
 			<ul class="{{dance}}"></ul>
 		</div>
 	{% endfor %}
-	</form>
 	
 	<script type="text/javascript">
-		var HTMLtuneLink = '<li><a href="/tunes?image_key=%image_key%&title_tune=%name%">%name%</a></li>';
+		var HTMLtuneLink = '<li><a href="/tunes/%key%">%name%</a> ' +
+							'<span id="%indice%"></span></li>';
+		var indice = 0;
 		{% for tune in list_tunes %}
-			var tuneLink = HTMLtuneLink.replace("%image_key%","{{tune.image_key}}");
-			tuneLink = tuneLink.replace('%name%',"{{tune.name}}");
-			tuneLink = tuneLink.replace('%name%',"{{tune.name}}");
+			var tuneLink = HTMLtuneLink.replace("%key%","{{tune.key}}");
+			tuneLink = tuneLink.replace(/%name%/g,"{{tune.name}}");
+			tuneLink = tuneLink.replace(/%indice%/g, indice.toString());
 			$("ul.{{tune.type_dance}}").append(tuneLink);
+			{% if tune.image_line_key %}
+			    $("#" + indice.toString()).append("<a href='/view_pan/{{ tune.key }}'>pan</a>");
+			{% endif %}
+			indice += 1;
 		{% endfor %}
 	</script>
 {% endblock %}

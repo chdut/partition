@@ -2,22 +2,25 @@
 {% set checked = "checked" %}
 {% block content %}
 	<form action={{upload_url}} enctype="multipart/form-data" method="post">
-		<div><input type="file" id="file" name="img" accept=".png"></div>
+		<div hidden><input type="text" name="key" value="{{ tune.key.urlsafe() if tune }}"></div>
+		<div><input type="file" id="file_full" name="img_full" accept=".png"></div>
+		<div><input type="file" id="file_line" name="img_line" accept=".png" multiple></div>
 		<label>
-        	<span>Title :</span> <input type="text" name="tune_name" id='Title' value={{tune_name}}>
+        	<span>Title :</span> <input type="text" name="tune_name" id='Title' value="{{ tune.name if tune }}">
     	</label>
     	<div><label>Score:</label></div>
         <div>
             {% set i = 0 %}
         	{% for dance in list_dance %}
-        		<input type="radio" name="type_dance" value="{{dance}}" {{ checked if i == 0 }}> {{dance}} <br>
+        		<input type="radio" name="type_dance" value="{{dance}}" {{ checked if i == 0 and not(tune)}}
+					{{checked if tune.type_dance == dance }}> {{dance}} <br>
                 {% set i = i + 1 %}
         	{% endfor %}
         </div>
 		<div><input type="submit" value="add tune"></div>
 	</form>
 	<script type="text/javascript">
-	var control = document.getElementById('file');
+	var control = document.getElementById('file_full');
 	var title = document.getElementById('Title');
 	control.addEventListener("change",function(event) {
 			var file_name = control.files[0].name ;

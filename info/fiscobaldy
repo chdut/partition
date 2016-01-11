@@ -1,2 +1,5 @@
 commande png
-$lilypond -dpoint-and-click -ddelete-intermediate-files $include --png -dbackend=eps -dresolution=300 -danti-alias-factor=1 -dpixmap-format=pngalpha $filename
+$lilypond -dpoint-and-click -ddelete-intermediate-files $include --png -dbackend=eps -dresolution=300 -danti-alias-factor=1 -dpixmap-format=png alpha $filename
+
+powershell
+ & ".\process_ly.ps1" maggieinthewoods.ly

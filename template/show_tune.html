@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<a href="/listtunes">Back to list</a>
+	<a href="/listtunes">Back to list</a> <a href="/add_tune?key={{ key_safe }} ">modifier</a>
 	<h3 class="tune">{{title_tune}}</h3>
-	<form method="post">
-		 <img id="myImg" src="/serve/{{image_key}}" width="600"></img> 
-	</form>
+	<img id="myImg" src="/serve/{{image_key}}" width="600"></img>
+
 	<script type="text/javascript">
 		var width=window.innerWidth-25;
 		document.getElementById("myImg").width = width;

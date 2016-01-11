@@ -2,6 +2,8 @@
             width : 100%;
             font-size : 18px;
 }
+.one_line {
+}
 @media (max-width : 400px) {
         html {
             font-size: 14px;
@@ -41,6 +43,7 @@ h3.tune {
 	font-size: 150%;
 	text-align: center;
 	line-height: 80%;
+	margin: 0.5em 0 0.5em 0;
 }
 h2.dance {
 	font-size: 150%;	

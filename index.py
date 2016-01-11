@@ -5,6 +5,7 @@ import os
 import jinja2
 import cgi #for escaping text
 import urllib
+import logging
 
 from google.appengine.ext import ndb
 from google.appengine.api import images
@@ -16,7 +17,7 @@ from google.appengine.ext.webapp import blobstore_handlers
 template_dir = os.path.join(os.path.dirname(__file__), 'template')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
 
-Liste_Dance = ["Reel", "Jigs", "Hornpipe", "Song", "Mazurka", "Barndance"]
+Liste_Dance = ["Reel", "Jigs", "Hornpipe", "Song", "Mazurka", "Barndance", "Polka"]
 
 
 class Tune(ndb.Model):
@@ -24,14 +25,16 @@ class Tune(ndb.Model):
     image_key = ndb.BlobKeyProperty()  # store the id of the blob contening the image
     owner_id = ndb.StringProperty()  # owner of the tune, using the id form the users api
     type_dance = ndb.StringProperty()
+    image_line_key = ndb.BlobKeyProperty(repeated=True)  # store the id of the blob containing the tune on a single line
 
-    def creat_dict(self): # create a dictionary to be send to the jinja interpreter
+    def creat_dict(self):  # create a dictionary to be send to the jinja interpreter
         dict = {}
         dict["name"] = self.name
         dict["html"] = self.name.replace(" ","")+".html"
         dict["image_key"] = self.image_key
-        dict["key"] = self.key.id()
+        dict["key"] = self.key.urlsafe()
         dict["type_dance"] = self.type_dance
+        dict["image_line_key"] = self.image_line_key
         return dict
 
 
@@ -72,12 +75,24 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         user = users.get_current_user()
         tuneName = self.request.get("tune_name")
         tuneType = self.request.get("type_dance")
-        upload_files = self.get_uploads('img')  # 'file' is file upload field in the form
-        blob_info = upload_files[0]
-        new_tune = Tune()
-        new_tune.image_key = blob_info.key()
+        upload_files_full = self.get_uploads('img_full')  # 'file' is file upload field in the form
+        upload_files_line = self.get_uploads('img_line')
+        urlsafe_key = self.request.get("key")
+        if urlsafe_key:
+            key = ndb.Key(urlsafe=urlsafe_key)
+            new_tune = key.get()
+        else:
+            new_tune = Tune()
+        if upload_files_full:
+            blob_info_full = upload_files_full[0]
+            new_tune.image_key = blob_info_full.key()
+        if upload_files_line:
+            list_image = []
+            for image in upload_files_line:
+                list_image.append(image.key())
+            new_tune.image_line_key = list_image
         new_tune.name = tuneName
-        new_tune.owner_id=user.user_id()
+        new_tune.owner_id = user.user_id()
         new_tune.type_dance = tuneType
         new_tune.put()
         self.redirect("/listtunes")
@@ -114,29 +129,46 @@ class ListTune(Handler):
         user = users.get_current_user()
         tunes = Tune.query(Tune.owner_id == user.user_id()).order(Tune.name)  
         list_tunes = []
-        for tune in tunes :
+        for tune in tunes:
             list_tunes.append(tune.creat_dict())            
         self.render_Main(list_tunes)
 
 
 class ViewTune(Handler):
-    def render_Main(self, title_tune="", image_key=""):
-        self.render("show_tune.html", title_tune = title_tune, image_key=image_key)
+    def render_Main(self, key_safe, title_tune="", image_key=""):
+        self.render("show_tune.html", key_safe=key_safe, title_tune=title_tune, image_key=image_key)
 
-    def get(self):
-        key = self.request.get('image_key')
-        name = self.request.get('title_tune')
-        if key and name :
-            self.render_Main(name.replace("%20"," "),key)
+    def get(self, urlsafe_key):
+        key = ndb.Key(urlsafe=urlsafe_key)
+        tune = key.get()
+        if tune:
+            self.render_Main(tune.key.urlsafe(), tune.name.replace("%20"," "), tune.image_key)
+
+
+class ViewPan(Handler):
+    def render_Main(self, key_safe, title_tune="", image_key=""):
+        self.render("view_pan.html", key_safe=key_safe, title_tune=title_tune, image_key=image_key)
+
+    def get(self, urlsafe_key):
+        key = ndb.Key(urlsafe=urlsafe_key)
+        tune = key.get()
+        if tune:
+            self.render_Main(tune.key.urlsafe(), tune.name.replace("%20"," "), tune.image_line_key)
 
 
 class AddTune(Handler):
-    def render_Main(self, upload_url=""):
-        self.render("add_tune.html", upload_url=upload_url, list_dance=Liste_Dance)
+    def render_main(self, upload_url="", tune=""):
+        self.render("add_tune.html", upload_url=upload_url, list_dance=Liste_Dance, tune=tune)
 
     def get(self):
+        urlsafe_key = self.request.get('key')
         upload_url = blobstore.create_upload_url('/upload')
-        self.render_Main(upload_url)
+        if urlsafe_key:
+            key = ndb.Key(urlsafe=urlsafe_key)
+            tune = key.get()
+            self.render_main(upload_url, tune)
+        else:
+            self.render_main(upload_url)
 
 
 class Logout(Handler):
@@ -145,7 +177,8 @@ class Logout(Handler):
         
 app = webapp2.WSGIApplication([('/', Main),
                                ('/listtunes', ListTune),
-                               ('/tunes', ViewTune),
+                               ('/tunes/([^/]+)?', ViewTune),
+                               ('/view_pan/([^/]+)?', ViewPan),
                                ('/add_tune', AddTune),
                                ('/img', getImage),
                                ('/upload', UploadHandler),
