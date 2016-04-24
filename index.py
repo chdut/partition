@@ -48,6 +48,14 @@ def render_str(template, **params):
     return t.render(params)
 
 
+def test_user():
+    user = users.get_current_user()
+    if user:
+        return True
+    else:
+        return False
+
+
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
@@ -118,47 +126,59 @@ class getImage(webapp2.RequestHandler):
 
 class Main(Handler):
     def get(self):
-        self.get_user()
+        self.redirect("/listtunes")
+
+
+class Login(Handler):
+    def get(self):
+        self.redirect(users.create_login_url('/'))
 
 
 class ListTune(Handler):
-    def render_Main(self, list_tunes=""):
-        self.render("list_tune.html", list_tunes = list_tunes, list_dance=Liste_Dance)
+    def render_Main(self, list_tunes="", user_login = False):
+        self.render("list_tune.html", list_tunes = list_tunes, list_dance=Liste_Dance, user_login=user_login)
 
     def get(self):
         user = users.get_current_user()
-        tunes = Tune.query(Tune.owner_id == user.user_id()).order(Tune.name)  
+        if user:
+            tunes = Tune.query(Tune.owner_id == user.user_id()).order(Tune.name)
+            user_login = True
+        else:
+            tunes = Tune.query().order(Tune.name)
+            user_login = False
         list_tunes = []
         for tune in tunes:
             list_tunes.append(tune.creat_dict())            
-        self.render_Main(list_tunes)
+        self.render_Main(list_tunes, user_login)
 
 
 class ViewTune(Handler):
-    def render_Main(self, key_safe, title_tune="", image_key=""):
-        self.render("show_tune.html", key_safe=key_safe, title_tune=title_tune, image_key=image_key)
+    def render_Main(self, key_safe, title_tune="", image_key="", user_login=False):
+        self.render("show_tune.html", key_safe=key_safe, title_tune=title_tune, image_key=image_key, user_login=user_login)
 
     def get(self, urlsafe_key):
         key = ndb.Key(urlsafe=urlsafe_key)
         tune = key.get()
+        user_login=test_user()
         if tune:
-            self.render_Main(tune.key.urlsafe(), tune.name.replace("%20"," "), tune.image_key)
+            self.render_Main(tune.key.urlsafe(), tune.name.replace("%20"," "), tune.image_key, user_login)
 
 
 class ViewPan(Handler):
-    def render_Main(self, key_safe, title_tune="", image_key=""):
-        self.render("view_pan.html", key_safe=key_safe, title_tune=title_tune, image_key=image_key)
+    def render_Main(self, key_safe, title_tune="", image_key="", user_login=False):
+        self.render("view_pan.html", key_safe=key_safe, title_tune=title_tune, image_key=image_key, user_login=user_login)
 
     def get(self, urlsafe_key):
         key = ndb.Key(urlsafe=urlsafe_key)
         tune = key.get()
+        user_login = test_user()
         if tune:
-            self.render_Main(tune.key.urlsafe(), tune.name.replace("%20"," "), tune.image_line_key)
+            self.render_Main(tune.key.urlsafe(), tune.name.replace("%20"," "), tune.image_line_key, user_login)
 
 
 class AddTune(Handler):
     def render_main(self, upload_url="", tune=""):
-        self.render("add_tune.html", upload_url=upload_url, list_dance=Liste_Dance, tune=tune)
+        self.render("add_tune.html", upload_url=upload_url, list_dance=Liste_Dance, tune=tune, user_login=True)
 
     def get(self):
         urlsafe_key = self.request.get('key')
@@ -173,9 +193,10 @@ class AddTune(Handler):
 
 class Logout(Handler):
     def get(self):
-        self.redirect(users.create_logout_url(self.request.uri))
+        self.redirect(users.create_logout_url("/"))
         
 app = webapp2.WSGIApplication([('/', Main),
+                               ('/login', Login),
                                ('/listtunes', ListTune),
                                ('/tunes/([^/]+)?', ViewTune),
                                ('/view_pan/([^/]+)?', ViewPan),

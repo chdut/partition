@@ -1,1 +1,5 @@
+lancer en local:
+dev_appserver.py partition
+
+déploiment sur serveur:
 appcfg.py update partition

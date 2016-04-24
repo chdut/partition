@@ -11,7 +11,11 @@
 <body>
 
 	<div id="mydiv">
-	<a href="/logout" class="logout">sign out</a> 
+	{% if user_login %}
+		<a href="/logout" class="logout">sign out</a>
+	{% else %}
+		<a href="/login" class="logout">sign in</a>
+	{% endif %}
 	{% block content %}
 	{% endblock %}
 	</div>	
