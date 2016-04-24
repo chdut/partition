@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<h1>Liste Tunes</h1>
-	<a href="/add_tune">Add a new tune</a>
+	<a href="/add_tune" class="right btn">Add a new tune</a>
+	<h1>Liste de morceaux</h1>
 	{% for dance in list_dance %}
-		<div id="{{dance}}" class='dance'>
+		<div id="{{dance}}" class='dance division'>
 			<h2 class="dance">{{dance}}</h2>
 			<ul class="{{dance}}"></ul>
 		</div>

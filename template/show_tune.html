@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<a href="/listtunes">Back to list</a> <a href="/add_tune?key={{ key_safe }} ">modifier</a>
-	<h3 class="tune">{{title_tune}}</h3>
-	<img id="myImg" src="/serve/{{image_key}}" width="600"></img>
-
+	<a href="/listtunes" class="btn left">Back to list</a> 
+	<a href="/add_tune?key={{ key_safe }} " class="btn right">modifier</a>
+	<div class="division">
+		<h3 class="tune">{{title_tune}}</h3>
+		<img id="myImg" src="/serve/{{image_key}}" width="600"></img>
+	</div>
 	<script type="text/javascript">
 		var width=window.innerWidth-25;
 		document.getElementById("myImg").width = width;
