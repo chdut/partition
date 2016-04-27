@@ -8,7 +8,13 @@
 		<img id="myImg" src="/serve/{{image_key}}" width="600"></img>
 	</div>
 	<script type="text/javascript">
-		var width=window.innerWidth-25;
-		document.getElementById("myImg").width = width;
+		$(document).ready(function() {
+			var width=window.innerWidth-50;
+			$("#myImg").width(width);
+			$(window).resize(function() {
+				var width=window.innerWidth-50;
+				$("#myImg").width(width);
+			});
+		});
 	</script>
 {% endblock %}
