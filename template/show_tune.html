@@ -1,20 +1,20 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<a href="/listtunes" class="btn left">Back to list</a> 
-	<a href="/add_tune?key={{ key_safe }} " class="btn right">modifier</a>
-	<div class="division">
-		<h3 class="tune">{{title_tune}}</h3>
-		<img id="myImg" src="/serve/{{image_key}}" width="600"></img>
+<div class="container body-content">
+	<div class="plain" id="view">
+		<h3 class="tune">{{tune.titre}}</h3>
+		<img id="myImg" src="https://tunemanager.blob.core.windows.net/mycontainer/{{tune.image_file}}" width="600"></img>
 	</div>
 	<script type="text/javascript">
-		$(document).ready(function() {
-			var width=window.innerWidth-50;
+		function to_execute() {
+			var width=$("#view").width();
 			$("#myImg").width(width);
 			$(window).resize(function() {
-				var width=window.innerWidth-50;
+				var width=$("#view").width();
 				$("#myImg").width(width);
 			});
-		});
+		};
 	</script>
+</div>
 {% endblock %}

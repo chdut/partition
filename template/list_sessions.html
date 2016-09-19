@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container body-content">
+	<h2>sessions</h2>
+	<div class="panel-group" id="accordion">
+	{% for rythme in list_rythmes %}
+		<div class="panel panel-default">
+			<div class="panel-heading btn_collapse" data-toggle="collapse" data-parent="#accordion" href="#r{{rythme.id_rythme}}">
+				<h3 class="panel-title">
+					{{rythme.nom_rythme}}
+				</h3>
+			</div>
+		<div id="r{{rythme.id_rythme}}" class="panel-collapse collapse">
+                <ul id="l{{rythme.id_rythme}}" class="list-group">
+                </ul>
+            </div>
+		</div>
+		
+
+	{% endfor %}
+	<script type="text/javascript">
+	function to_execute() {
+		var HTMLsessionsLink = "<li class=\"row list-group-item\">"+
+                           "<div class=\"col-sm-10\" style=\"cursor: pointer;\" onclick=\"window.location='/home/viewSession/%id_sessions%';\">"+
+                                "<p>%titre%</p>"+
+                            "</div>"+
+                            "<div class=\"col-sm-2\">"+
+                                "<a class=\"btn btn-primary\" href=\"\\home\\viewSession\\%id_sessions%\"><span class=\"glyphicon glyphicon-eye-open\"></span></a>"+
+                                "<a class=\"btn btn-primary\" href=\"\\home\\download\\%pdf_file%\?file_name=%file_name%\" download=\"%titre%.pdf\"><span class=\"glyphicon glyphicon-save\"></span></a>"+
+                            "</div></li>"
+		{% for sessions in list_sessions %}
+			var sessionsLink = HTMLsessionsLink.replace("%id%","{{sessions.id_session}}");
+			sessionsLink = sessionsLink.replace("%id_sessions%","{{sessions.id_session}}");
+			sessionsLink = sessionsLink.replace("%id_sessions%","{{sessions.id_session}}");
+			sessionsLink = sessionsLink.replace("%titre%","{{sessions.name_session}}");
+			sessionsLink = sessionsLink.replace("%titre%","{{sessions.name_session}}");
+			sessionsLink = sessionsLink.replace("%pdf_file%","{{sessions.pdf_session}}");
+			sessionsLink = sessionsLink.replace("%file_name%","{{sessions.name_session}}");
+			$("#l{{sessions.id_rythme}}").append(sessionsLink);
+		{% endfor %}
+	};
+	</script>
+	</div>
+</div>
+{% endblock %}

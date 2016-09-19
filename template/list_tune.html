@@ -1,28 +1,50 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<a href="/add_tune" class="right btn">Add a new tune</a>
-	<h1>Liste de morceaux</h1>
-	{% for dance in list_dance %}
-		<div id="{{dance}}" class='dance division'>
-			<h2 class="dance">{{dance}}</h2>
-			<ul class="{{dance}}"></ul>
+<div class="container body-content">
+	<h2>Tunes</h2>
+	<div class="panel-group" id="accordion">
+	{% for rythme in list_rythmes %}
+		<div class="panel panel-default">
+			<div class="panel-heading btn_collapse" data-toggle="collapse" data-parent="#accordion" href="#r{{rythme.id_rythme}}">
+				<h3 class="panel-title">
+					{{rythme.nom_rythme}}
+				</h3>
+			</div>
+		<div id="r{{rythme.id_rythme}}" class="panel-collapse collapse">
+                <ul id="l{{rythme.id_rythme}}" class="list-group">
+                </ul>
+            </div>
 		</div>
+		
+
 	{% endfor %}
-	
 	<script type="text/javascript">
-		var HTMLtuneLink = '<li><a href="/tunes/%key%">%name%</a> ' +
-							'<span id="%indice%"></span></li>';
-		var indice = 0;
+	function to_execute() {
+		var HTMLtuneLink = "<li class=\"row list-group-item\">"+
+                           "<div class=\"col-sm-8\" style=\"cursor: pointer;\" onclick=\"window.location='/home/view/%id_tune%';\">"+
+                                "<p>%titre%</p>"+
+                            "</div>"+
+                            "<div class=\"col-sm-2\">"+
+                                "<p>%auteur%</p>"+
+                            "</div>"+
+                            "<div class=\"col-sm-2\">"+
+                                "<a class=\"btn btn-primary\" href=\"\\home\\view\\%id_tune%\"><span class=\"glyphicon glyphicon-eye-open\"></span></a>"+
+                                "<a class=\"btn btn-primary\" href=\"\\home\\download\\%pdf_file%\?file_name=%file_name%\" download=\"%titre%.pdf\"><span class=\"glyphicon glyphicon-save\"></span></a>"+
+                            "</div></li>"
 		{% for tune in list_tunes %}
-			var tuneLink = HTMLtuneLink.replace("%key%","{{tune.key}}");
-			tuneLink = tuneLink.replace(/%name%/g,"{{tune.name}}");
-			tuneLink = tuneLink.replace(/%indice%/g, indice.toString());
-			$("ul.{{tune.type_dance}}").append(tuneLink);
-			{% if tune.image_line_key %}
-			    $("#" + indice.toString()).append("<a href='/view_pan/{{ tune.key }}'>pan</a>");
-			{% endif %}
-			indice += 1;
+			var tuneLink = HTMLtuneLink.replace("%id%","{{tune.id_tune}}");
+			tuneLink = tuneLink.replace("%id_tune%","{{tune.id_tune}}");
+			tuneLink = tuneLink.replace("%id_tune%","{{tune.id_tune}}");
+			tuneLink = tuneLink.replace("%titre%","{{tune.titre}}");
+			tuneLink = tuneLink.replace("%titre%","{{tune.titre}}");
+			tuneLink = tuneLink.replace("%pdf_file%","{{tune.pdf_file}}");
+			tuneLink = tuneLink.replace("%file_name%","{{tune.titre}}");
+			tuneLink = tuneLink.replace("%auteur%","{{tune.auteur}}");
+			$("#l{{tune.id_rythme}}").append(tuneLink);
 		{% endfor %}
+	};
 	</script>
+	</div>
+</div>
 {% endblock %}

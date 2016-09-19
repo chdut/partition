@@ -6,18 +6,16 @@ import jinja2
 import cgi #for escaping text
 import urllib
 import logging
+import MySQLdb
 
 from google.appengine.ext import ndb
 from google.appengine.api import images
 from google.appengine.api import users
-from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
 
 
 template_dir = os.path.join(os.path.dirname(__file__), 'template')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
-
-Liste_Dance = ["Reel", "Jigs", "Hornpipe", "Song", "Mazurka", "Barndance", "Polka"]
 
 
 class Tune(ndb.Model):
@@ -48,14 +46,6 @@ def render_str(template, **params):
     return t.render(params)
 
 
-def test_user():
-    user = users.get_current_user()
-    if user:
-        return True
-    else:
-        return False
-
-
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
@@ -77,41 +67,6 @@ class Handler(webapp2.RequestHandler):
                                  + users.create_login_url(self.request.uri) +
                                  "\">sign in</a>.</p> </html>")
 
-
-class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
-    def post(self):
-        user = users.get_current_user()
-        tuneName = self.request.get("tune_name")
-        tuneType = self.request.get("type_dance")
-        upload_files_full = self.get_uploads('img_full')  # 'file' is file upload field in the form
-        upload_files_line = self.get_uploads('img_line')
-        urlsafe_key = self.request.get("key")
-        if urlsafe_key:
-            key = ndb.Key(urlsafe=urlsafe_key)
-            new_tune = key.get()
-        else:
-            new_tune = Tune()
-        if upload_files_full:
-            blob_info_full = upload_files_full[0]
-            new_tune.image_key = blob_info_full.key()
-        if upload_files_line:
-            list_image = []
-            for image in upload_files_line:
-                list_image.append(image.key())
-            new_tune.image_line_key = list_image
-        new_tune.name = tuneName
-        new_tune.owner_id = user.user_id()
-        new_tune.type_dance = tuneType
-        new_tune.put()
-        self.redirect("/listtunes")
-
-
-class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
-    def get(self, resource):
-        resource = str(urllib.unquote(resource))
-        blob_info = blobstore.BlobInfo.get(resource)
-        self.send_blob(blob_info)
-
         
 class getImage(webapp2.RequestHandler):
     def get(self):
@@ -123,86 +78,79 @@ class getImage(webapp2.RequestHandler):
         else:
             self.error(404) 
 
+class DownloadFile(webapp2.RequestHandler):
+    def get(self, pdf_file):
+        file_name = self.request.get('file_name') + ".pdf"
+        response = urllib.urlopen('https://tunemanager.blob.core.windows.net/mycontainer/' + pdf_file)
+        html = response.read()
+        self.response.headers['Content-Type'] = 'text/pdf'
+        self.response.headers.add_header('content-disposition', 'attachment', filename=file_name.encode('ascii','replace'))
+        self.response.out.write(html)
+
 
 class Main(Handler):
-    def get(self):
-        self.redirect("/listtunes")
-
-
-class Login(Handler):
-    def get(self):
-        self.redirect(users.create_login_url('/'))
-
-
-class ListTune(Handler):
-    def render_Main(self, list_tunes="", user_login = False):
-        self.render("list_tune.html", list_tunes = list_tunes, list_dance=Liste_Dance, user_login=user_login)
+    def render_Main(self, list_tunes="", list_rythmes=""):
+        self.render("list_tune.html", list_tunes = list_tunes, list_rythmes=list_rythmes)
 
     def get(self):
-        user = users.get_current_user()
-        if user:
-            tunes = Tune.query(Tune.owner_id == user.user_id()).order(Tune.name)
-            user_login = True
-        else:
-            tunes = Tune.query().order(Tune.name)
-            user_login = False
-        list_tunes = []
-        for tune in tunes:
-            list_tunes.append(tune.creat_dict())            
-        self.render_Main(list_tunes, user_login)
+        db = MySQLdb.connect(unix_socket='/cloudsql/tune-2000:us-central1:partoteque', user='root',  passwd="ETQNTtNc8qt9RuP1TK2l", db="tunemanger")
+        db.query("""SELECT * FROM rythme""")
+        r_db = db.store_result()
+        b_rythmes = r_db.fetch_row(0,1)
+        db.query("""SELECT * FROM tune ORDER BY tune.titre""")
+        r_db = db.store_result()
+        b_tunes = r_db.fetch_row(0,1)
+        self.render_Main(b_tunes, b_rythmes)
+
+class ListSession(Handler):
+    def render_Main(self, list_sessions="", list_rythmes=""):
+        self.render("list_sessions.html", list_sessions = list_sessions, list_rythmes=list_rythmes)
+
+    def get(self):
+        db =  MySQLdb.connect(unix_socket='/cloudsql/tune-2000:us-central1:partoteque', user='root',  passwd="ETQNTtNc8qt9RuP1TK2l", db="tunemanger")
+        db.query("""SELECT * FROM rythme""")
+        r_db = db.store_result()
+        b_rythmes = r_db.fetch_row(0,1)
+        db.query("""SELECT * FROM session ORDER BY session.name_session""")
+        r_db = db.store_result()
+        b_sessions = r_db.fetch_row(0,1)
+        self.render_Main(b_sessions, b_rythmes)
 
 
 class ViewTune(Handler):
-    def render_Main(self, key_safe, title_tune="", image_key="", user_login=False):
-        self.render("show_tune.html", key_safe=key_safe, title_tune=title_tune, image_key=image_key, user_login=user_login)
+    def render_Main(self, tune=""):
+        self.render("show_tune.html", tune=tune)
 
-    def get(self, urlsafe_key):
-        key = ndb.Key(urlsafe=urlsafe_key)
-        tune = key.get()
-        user_login=test_user()
-        if tune:
-            self.render_Main(tune.key.urlsafe(), tune.name.replace("%20"," "), tune.image_key, user_login)
+    def get(self, id_tune):
+        db = MySQLdb.connect(unix_socket='/cloudsql/tune-2000:us-central1:partoteque', user='root',  passwd="ETQNTtNc8qt9RuP1TK2l", db="tunemanger")
+        db.query("SELECT * FROM tune WHERE id_tune=" + id_tune +";")
+        r_db = db.store_result()
+        b_tunes = r_db.fetch_row(0,1)
+        if (b_tunes) :
+            self.render_Main(b_tunes[0])
+        else :
+            self.error(404)
 
+class ViewSession(Handler):
+    def render_Main(self, session=""):
+        self.render("show_session.html", session=session)
 
-class ViewPan(Handler):
-    def render_Main(self, key_safe, title_tune="", image_key="", user_login=False):
-        self.render("view_pan.html", key_safe=key_safe, title_tune=title_tune, image_key=image_key, user_login=user_login)
-
-    def get(self, urlsafe_key):
-        key = ndb.Key(urlsafe=urlsafe_key)
-        tune = key.get()
-        user_login = test_user()
-        if tune:
-            self.render_Main(tune.key.urlsafe(), tune.name.replace("%20"," "), tune.image_line_key, user_login)
-
-
-class AddTune(Handler):
-    def render_main(self, upload_url="", tune=""):
-        self.render("add_tune.html", upload_url=upload_url, list_dance=Liste_Dance, tune=tune, user_login=True)
-
-    def get(self):
-        urlsafe_key = self.request.get('key')
-        upload_url = blobstore.create_upload_url('/upload')
-        if urlsafe_key:
-            key = ndb.Key(urlsafe=urlsafe_key)
-            tune = key.get()
-            self.render_main(upload_url, tune)
-        else:
-            self.render_main(upload_url)
-
-
-class Logout(Handler):
-    def get(self):
-        self.redirect(users.create_logout_url("/"))
+    def get(self, id_session):
+        db =  MySQLdb.connect(unix_socket='/cloudsql/tune-2000:us-central1:partoteque', user='root',  passwd="ETQNTtNc8qt9RuP1TK2l", db="tunemanger")
+        db.query("SELECT * FROM session WHERE id_session="+id_session +";")
+        r_db = db.store_result()
+        session = r_db.fetch_row(0,1)[0]
+        db.query("SELECT * FROM tune JOIN tune_in_session ON tune.id_tune=tune_in_session.id_tune WHERE tune_in_session.id_session=" + id_session + ";")
+        r_db = db.store_result()
+        session['list_tunes'] = r_db.fetch_row(0,1)
+        if (session) :
+            self.render_Main(session)
+        else :
+            self.error(404)
         
 app = webapp2.WSGIApplication([('/', Main),
-                               ('/login', Login),
-                               ('/listtunes', ListTune),
-                               ('/tunes/([^/]+)?', ViewTune),
-                               ('/view_pan/([^/]+)?', ViewPan),
-                               ('/add_tune', AddTune),
-                               ('/img', getImage),
-                               ('/upload', UploadHandler),
-                               ('/serve/([^/]+)?', ServeHandler),
-                               ('/logout', Logout)],
+                               ('/home/view/([^/]+)?', ViewTune),
+                               ('/home/download/([^/]+)?', DownloadFile),
+                               ('/home/sessions', ListSession),
+                               ('/home/viewSession/([^/]+)?', ViewSession)],
                                debug=True)

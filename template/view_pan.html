@@ -1,13 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<a href="/listtunes">Back to list</a> <a href="/add_tune?key={{ key_safe }} ">modifier</a>
-	<h3 class="tune">{{title_tune}}</h3>
-    <canvas id="myCanvas" class="one_line"></canvas>
-    <button onclick="play()">Play</button>
-    <input type="range" id="myRange" value="100" onchange="change_tempo()" min=0 max=1000>
-	<button onclick="stop()">Stop</button>
-
+		<a class='btn left' href="/listtunes">Back to list</a> <a class='btn right' href="/add_tune?key={{ key_safe }} ">modifier</a>
+	<div class='plain'>
+		<h3 class="tune">{{title_tune}}</h3>
+	    <canvas id="myCanvas" class="one_line"></canvas>
+	    <div class='center'>
+		    <button onclick="play()">Play</button>
+		    <input type="range" id="myRange" value="100" onchange="change_tempo()" min=0 max=1000>
+			<button onclick="stop()">Stop</button>
+		</div>
+	</div>
 	<script type="text/javascript">
 		var length_split = 10000;
 		var list_image = [];
@@ -21,8 +24,8 @@
 		var w_canvas = width;
 		var image_width;
 		var image_height;
-		var tempo=2;
-		var o_tempo = 3;
+		var tempo=0.2;
+		var o_tempo = 0.002;
 		var f = 2000.0/width;
 		var indice_image = 0;
 		var full_context;
@@ -50,8 +53,10 @@
 		}
 		var position = -500;
 		length_image = length_split
+		var time = 0;
 		function next(){
 			request = requestAnimationFrame(next);
+			time_test = Date.now();
             if (position >= length_image) {
                 position = 0;
                 if (indice_image == list_image.length-1) {
@@ -64,8 +69,9 @@
                     }
                 }
             }
-		    position += tempo;
-		    context.clearRect(0,0, w_canvas, h_canvas);
+		    if (time==0) time=Date.now();
+		    position += tempo * (Date.now()-time);
+		    time=Date.now();
 		    if (position + w_canvas*f > length_image) {
 				if (indice_image == list_image.length-1) {
                     alpha = (length_image - position)/f;
@@ -81,7 +87,7 @@
 		}
 		function change_tempo(){
 		    var x = document.getElementById("myRange").value;
-		    tempo = o_tempo * x / 50 | 0;
+		    tempo = o_tempo * x;
 		}
 		function stop() {
 			cancelAnimationFrame(request);
