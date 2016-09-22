@@ -26,8 +26,8 @@
                                 "<p>%titre%</p>"+
                             "</div>"+
                             "<div class=\"col-sm-2\">"+
-                                "<a class=\"btn btn-primary\" href=\"\\home\\viewSession\\%id_sessions%\"><span class=\"glyphicon glyphicon-eye-open\"></span></a>"+
-                                "<a class=\"btn btn-primary\" href=\"\\home\\download\\%pdf_file%\?file_name=%file_name%\" download=\"%titre%.pdf\"><span class=\"glyphicon glyphicon-save\"></span></a>"+
+                                "<a class=\"btn btn-primary\" href=\"/home/viewSession/%id_sessions%\"><span class=\"glyphicon glyphicon-eye-open\"></span></a>"+
+                                "<a class=\"btn btn-primary\" href=\"/home/download/%pdf_file%\?file_name=%file_name%\" download=\"%titre%.pdf\"><span class=\"glyphicon glyphicon-save\"></span></a>"+
                             "</div></li>"
 		{% for sessions in list_sessions %}
 			var sessionsLink = HTMLsessionsLink.replace("%id%","{{sessions.id_session}}");
