@@ -11,6 +11,7 @@ import MySQLdb
 from google.appengine.ext import ndb
 from google.appengine.api import images
 from google.appengine.api import users
+from google.appengine.api import memcache
 from google.appengine.ext.webapp import blobstore_handlers
 
 
@@ -90,31 +91,44 @@ class DownloadFile(webapp2.RequestHandler):
 
 class Main(Handler):
     def render_Main(self, list_tunes="", list_rythmes=""):
-        self.render("list_tune.html", list_tunes = list_tunes, list_rythmes=list_rythmes)
+        html = self.render_str("list_tune.html", list_tunes = list_tunes, list_rythmes=list_rythmes)
+        memcache.add(key="indexTune", value=html)
+        self.write(html)
 
     def get(self):
-        db = MySQLdb.connect(unix_socket='/cloudsql/tune-2000:us-central1:partoteque', user='root',  passwd="ETQNTtNc8qt9RuP1TK2l", db="tunemanger")
-        db.query("""SELECT * FROM rythme""")
-        r_db = db.store_result()
-        b_rythmes = r_db.fetch_row(0,1)
-        db.query("""SELECT * FROM tune ORDER BY tune.titre""")
-        r_db = db.store_result()
-        b_tunes = r_db.fetch_row(0,1)
-        self.render_Main(b_tunes, b_rythmes)
+        regenerate = self.request.get("reg")
+        html = memcache.get("indexTune")
+        if html is not None and regenerate != "1":
+            self.write(html)
+        else:           
+            db = MySQLdb.connect(unix_socket='/cloudsql/tune-2000:us-central1:partoteque', user='root',  passwd="ETQNTtNc8qt9RuP1TK2l", db="tunemanger")
+            db.query("""SELECT * FROM rythme""")
+            r_db = db.store_result()
+            b_rythmes = r_db.fetch_row(0,1)
+            db.query("""SELECT * FROM tune ORDER BY tune.titre""")
+            r_db = db.store_result()
+            b_tunes = r_db.fetch_row(0,1)
+            self.render_Main(b_tunes, b_rythmes)
 
 class ListSession(Handler):
     def render_Main(self, list_sessions="", list_rythmes=""):
-        self.render("list_sessions.html", list_sessions = list_sessions, list_rythmes=list_rythmes)
+        html=self.render_str("list_sessions.html", list_sessions = list_sessions, list_rythmes=list_rythmes)
+        memcache.add(key="indexSession", value=html)
 
     def get(self):
-        db =  MySQLdb.connect(unix_socket='/cloudsql/tune-2000:us-central1:partoteque', user='root',  passwd="ETQNTtNc8qt9RuP1TK2l", db="tunemanger")
-        db.query("""SELECT * FROM rythme""")
-        r_db = db.store_result()
-        b_rythmes = r_db.fetch_row(0,1)
-        db.query("""SELECT * FROM session ORDER BY session.name_session""")
-        r_db = db.store_result()
-        b_sessions = r_db.fetch_row(0,1)
-        self.render_Main(b_sessions, b_rythmes)
+        regenerate = self.request("indexSession")
+        html = memcache.get("indexSession")
+        if html = is not None and regenerate != "1":
+            self.write(html)
+        else:
+            db =  MySQLdb.connect(unix_socket='/cloudsql/tune-2000:us-central1:partoteque', user='root',  passwd="ETQNTtNc8qt9RuP1TK2l", db="tunemanger")
+            db.query("""SELECT * FROM rythme""")
+            r_db = db.store_result()
+            b_rythmes = r_db.fetch_row(0,1)
+            db.query("""SELECT * FROM session ORDER BY session.name_session""")
+            r_db = db.store_result()
+            b_sessions = r_db.fetch_row(0,1)
+            self.render_Main(b_sessions, b_rythmes)
 
 
 class ViewTune(Handler):

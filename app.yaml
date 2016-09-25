@@ -1,8 +1,10 @@
 application: tune-2000
-version: 1
+version: 2
 runtime: python27
 api_version: 1
 threadsafe : yes
+
+default_expiration: "1d"
 
 handlers : 
 -  url: /sitemaps.xml
