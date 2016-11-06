@@ -17,6 +17,9 @@ handlers :
 -  url: /
    script : index.app
    login : optional
+-  url: /admin/.*
+   script: utilitair.app
+   login: optional
 -  url: /.*
    script: index.app
    login : optional

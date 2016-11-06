@@ -14,36 +14,6 @@ from google.appengine.api import users
 from google.appengine.api import memcache
 from google.appengine.ext.webapp import blobstore_handlers
 
-
-template_dir = os.path.join(os.path.dirname(__file__), 'template')
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
-
-def render_str(template, **params):
-    t = jinja_env.get_template(template)
-    return t.render(params)
-
-
-class Handler(webapp2.RequestHandler):
-    def write(self, *a, **kw):
-        self.response.out.write(*a, **kw)
-
-    def render_str(self, template, **params):
-        t = jinja_env.get_template(template)
-        return t.render(params)
-
-    def render(self, template, **kw):
-        self.write(self.render_str(template, **kw))
-
-    def get_user(self):
-        user = users.get_current_user()
-        if user:
-            self.response.headers['Content-Type'] = 'text/html'
-            self.redirect("/listtunes")
-        else:
-            self.response.write("<!doctype html> <html> <p> Hello,  you aren't log in yet !You can <a href=\""
-                                 + users.create_login_url(self.request.uri) +
-                                 "\">sign in</a>.</p> </html>")
-
 class DownloadFile(webapp2.RequestHandler):
     def get(self, pdf_file):
         file_name = self.request.get('file_name') + ".pdf"
@@ -53,8 +23,7 @@ class DownloadFile(webapp2.RequestHandler):
         self.response.headers.add_header('content-disposition', 'attachment', filename=file_name.encode('ascii','replace'))
         self.response.out.write(html)
 
-
-class Main(Handler):
+class Main(myclass.Handler):
     def render_Main(self, list_tunes="", list_rythmes=""):
         html = self.render_str("list_tune.html", list_tunes = list_tunes, list_rythmes=list_rythmes)
         memcache.add(key="indexTune", value=html)
@@ -75,7 +44,7 @@ class Main(Handler):
             b_tunes = r_db.fetch_row(0,1)
             self.render_Main(b_tunes, b_rythmes)
 
-class ListSession(Handler):
+class ListSession(myclass.Handler):
     def render_Main(self, list_sessions="", list_rythmes=""):
         html=self.render_str("list_sessions.html", list_sessions = list_sessions, list_rythmes=list_rythmes)
         memcache.add(key="indexSession", value=html)
@@ -97,7 +66,7 @@ class ListSession(Handler):
             self.render_Main(b_sessions, b_rythmes)
 
 
-class ViewTune(Handler):
+class ViewTune(myclass.Handler):
     def render_Main(self, tune=""):
         self.render("show_tune.html", tune=tune)
 
@@ -111,7 +80,7 @@ class ViewTune(Handler):
         else :
             self.error(404)
 
-class ViewSession(Handler):
+class ViewSession(myclass.Handler):
     def render_Main(self, session=""):
         self.render("show_session.html", session=session)
 
