@@ -1,0 +1,5 @@
+local dev:
+    dev_appserver.py partition
+
+deploy dev version
+    appcfg.py -A tune-2000 -V dev update partition/
