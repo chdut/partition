@@ -38,12 +38,19 @@ def connect_to_cloudsql():
 
     return db
 
+class Rythm(ndb.Model):
+    id_rythme = ndb.IntProperty()
+    nom_rythme = ndb.StringProperty()
+
 class Tune(ndb.Model):
-    name = ndb.StringProperty()  # name of the tune
-    image_key = ndb.BlobKeyProperty()  # store the id of the blob contening the image
-    owner_id = ndb.StringProperty()  # owner of the tune, using the id form the users api
-    type_dance = ndb.StringProperty()
-    image_line_key = ndb.BlobKeyProperty(repeated=True)  # store the id of the blob containing the tune on a single line
+    id_tune = ndb.IntProperty()
+    ref_tune = nbd.StringProperty()
+    titre = ndb.StringProperty()  # name of the tune
+    auteur = ndb.StringProperty()
+    text_ly = ndb.StringProperty()
+    image_file = ndb.StringProperty()
+    pdf_file = ndb.StringProperty()
+    id_rythme = ndb.IntProperty()
 
     def creat_dict(self):  # create a dictionary to be send to the jinja interpreter
         dict = {}
@@ -55,7 +62,13 @@ class Tune(ndb.Model):
         dict["image_line_key"] = self.image_line_key
         return dict
 
-
 class Session(ndb.Model):
-    name = ndb.StringProperty()
-    tunes = ndb.StringProperty(repeated=True) 
+    name_session = ndb.StringProperty()
+    image_session=ndb.StringProperty()
+    pdf_session = ndb.StringProperty()
+    id_rythme = ndb.IntProperty()
+     
+class Tune_in_session:
+    id_tune = ndb.IntProperty()
+    id_session = ndb.IntProperty()
+    pos = ndb.IntProperty()

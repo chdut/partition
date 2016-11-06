@@ -44,17 +44,6 @@ class Handler(webapp2.RequestHandler):
                                  + users.create_login_url(self.request.uri) +
                                  "\">sign in</a>.</p> </html>")
 
-        
-class getImage(webapp2.RequestHandler):
-    def get(self):
-        Id = self.request.get('Id_tune')
-        tune = Tune.get_by_id(Id)
-        if tune.image:
-            self.response.headers['Content-Type'] = 'image/png'
-            self.response.out.write(tune.image)
-        else:
-            self.error(404) 
-
 class DownloadFile(webapp2.RequestHandler):
     def get(self, pdf_file):
         file_name = self.request.get('file_name') + ".pdf"
