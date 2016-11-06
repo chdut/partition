@@ -80,7 +80,7 @@ class Tune(ndb.Model):
     ref_tune = ndb.StringProperty()
     titre = ndb.StringProperty()  # name of the tune
     auteur = ndb.StringProperty()
-    text_ly = ndb.StringProperty()
+    text_ly = ndb.TextProperty()
     image_file = ndb.StringProperty()
     pdf_file = ndb.StringProperty()
     id_rythme = ndb.IntegerProperty()
@@ -101,7 +101,7 @@ class Session(ndb.Model):
     pdf_session = ndb.StringProperty()
     id_rythme = ndb.IntegerProperty()
      
-class Tune_in_session:
+class Tune_in_session(ndb.Model):
     id_tune = ndb.IntegerProperty()
     id_session = ndb.IntegerProperty()
     pos = ndb.IntegerProperty()
