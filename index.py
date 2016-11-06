@@ -1,14 +1,14 @@
-
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 import webapp2
-import os
 import jinja2
 import cgi #for escaping text
 import urllib
 import logging
-import MySQLdb
+import myclass
+import os
 
-from google.appengine.ext import ndb
 from google.appengine.api import images
 from google.appengine.api import users
 from google.appengine.api import memcache
@@ -17,30 +17,6 @@ from google.appengine.ext.webapp import blobstore_handlers
 
 template_dir = os.path.join(os.path.dirname(__file__), 'template')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
-
-
-class Tune(ndb.Model):
-    name = ndb.StringProperty()  # name of the tune
-    image_key = ndb.BlobKeyProperty()  # store the id of the blob contening the image
-    owner_id = ndb.StringProperty()  # owner of the tune, using the id form the users api
-    type_dance = ndb.StringProperty()
-    image_line_key = ndb.BlobKeyProperty(repeated=True)  # store the id of the blob containing the tune on a single line
-
-    def creat_dict(self):  # create a dictionary to be send to the jinja interpreter
-        dict = {}
-        dict["name"] = self.name
-        dict["html"] = self.name.replace(" ","")+".html"
-        dict["image_key"] = self.image_key
-        dict["key"] = self.key.urlsafe()
-        dict["type_dance"] = self.type_dance
-        dict["image_line_key"] = self.image_line_key
-        return dict
-
-
-class Session(ndb.Model):
-    name = ndb.StringProperty()
-    tunes = ndb.StringProperty(repeated=True) 
-
 
 def render_str(template, **params):
     t = jinja_env.get_template(template)
@@ -101,7 +77,7 @@ class Main(Handler):
         if html is not None and regenerate != "1":
             self.write(html)
         else:           
-            db = MySQLdb.connect(unix_socket='/cloudsql/tune-2000:us-central1:partoteque', user='root',  passwd="ETQNTtNc8qt9RuP1TK2l", db="tunemanger")
+            db = myclass.connect_to_cloudsql()
             db.query("""SELECT * FROM rythme""")
             r_db = db.store_result()
             b_rythmes = r_db.fetch_row(0,1)
@@ -114,14 +90,15 @@ class ListSession(Handler):
     def render_Main(self, list_sessions="", list_rythmes=""):
         html=self.render_str("list_sessions.html", list_sessions = list_sessions, list_rythmes=list_rythmes)
         memcache.add(key="indexSession", value=html)
+        self.write(html)
 
     def get(self):
-        regenerate = self.request("indexSession")
+        regenerate = self.request.get("reg")
         html = memcache.get("indexSession")
-        if html = is not None and regenerate != "1":
+        if html is not None and regenerate != "1":
             self.write(html)
         else:
-            db =  MySQLdb.connect(unix_socket='/cloudsql/tune-2000:us-central1:partoteque', user='root',  passwd="ETQNTtNc8qt9RuP1TK2l", db="tunemanger")
+            db = myclass.connect_to_cloudsql()
             db.query("""SELECT * FROM rythme""")
             r_db = db.store_result()
             b_rythmes = r_db.fetch_row(0,1)
@@ -136,7 +113,7 @@ class ViewTune(Handler):
         self.render("show_tune.html", tune=tune)
 
     def get(self, id_tune):
-        db = MySQLdb.connect(unix_socket='/cloudsql/tune-2000:us-central1:partoteque', user='root',  passwd="ETQNTtNc8qt9RuP1TK2l", db="tunemanger")
+        db =myclass.connect_to_cloudsql()
         db.query("SELECT * FROM tune WHERE id_tune=" + id_tune +";")
         r_db = db.store_result()
         b_tunes = r_db.fetch_row(0,1)
@@ -150,7 +127,7 @@ class ViewSession(Handler):
         self.render("show_session.html", session=session)
 
     def get(self, id_session):
-        db =  MySQLdb.connect(unix_socket='/cloudsql/tune-2000:us-central1:partoteque', user='root',  passwd="ETQNTtNc8qt9RuP1TK2l", db="tunemanger")
+        db = myclass.connect_to_cloudsql()
         db.query("SELECT * FROM session WHERE id_session="+id_session +";")
         r_db = db.store_result()
         session = r_db.fetch_row(0,1)[0]
