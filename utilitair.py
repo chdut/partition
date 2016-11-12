@@ -40,7 +40,7 @@ class Session_tonsql(webapp2.RequestHandler):
         r_db = db.store_result()
         b_sessions = r_db.fetch_row(0,1)
         for session in b_sessions:
-            my_session= Session(name_session=session["name_session"], image_session=session["image_session"], pdf_session=session["pdf_session"], id_rythme=session["id_rythme"])
+            my_session= Session(id_session=session["id_session"], name_session=session["name_session"], image_session=session["image_session"], pdf_session=session["pdf_session"], id_rythme=session["id_rythme"])
             my_session.put()
         self.redirect("/admin/")
 

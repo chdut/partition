@@ -100,6 +100,7 @@ class Session(ndb.Model):
     image_session=ndb.StringProperty()
     pdf_session = ndb.StringProperty()
     id_rythme = ndb.IntegerProperty()
+    id_session = ndb.IntegerProperty()
      
 class Tune_in_session(ndb.Model):
     id_tune = ndb.IntegerProperty()
