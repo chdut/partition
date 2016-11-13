@@ -83,17 +83,59 @@ class ViewSession(Handler):
         else :
             self.error(404)
         
-class ApiTunes(Handler):
-    def get():
-         db.query("""SELECT * FROM tune ORDER BY tune.titre""")
-         r_db = db.store_result()
-         b_tunes = r_db.fetch_row(0,1)
-         self.write(json.dump(b_tunes))
+class ApiTunes(webapp2.RequestHandler):
+    def get(self, id_tune):
+        b_tunes=Tune.query().order(Tune.titre)
+        result = []
+        for tune in b_tunes:
+            result.append(tune.to_dict())
+        self.response.headers['Content-Type'] = 'application/json'  
+        self.response.out.write(json.dumps(result))
+
+    def put(self, id_tune):
+        dictionary = json.loads(self.request.body)
+        tune = Tune.query(Tune.id_tune==int(id_tune)).get()
+        dictionary.pop('Rythme', None)
+        tune.populate(**dictionary)
+        tune.put()
+
+class ApiSessions(webapp2.RequestHandler):
+    def get(self):
+        b_session=Session.query().order(Session.name_session)
+        result = []
+        for session in b_session:
+            result.append(session.to_dict())
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps(result))
+
+class ApiRythmes(webapp2.RequestHandler):
+    def get(self):
+        b_rythme=Rythm.query()
+        result = []
+        for rythme in b_rythme:
+            result.append(rythme.to_dict())
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps(result))
+        
+class ApiTunesInSessions(webapp2.RequestHandler):
+     def get(self):
+        b_tunesInSessions=Tune_in_session.query()
+        result = []
+        for tunesInSession in b_tunesInSessions:
+            result.append(tunesInSession.to_dict())
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps(result))
+
+   
+
 
 app = webapp2.WSGIApplication([('/', Main),
                                ('/home/view/([^/]+)?', ViewTune),
                                ('/home/download/([^/]+)?', DownloadFile),
                                ('/home/sessions', ListSession),
                                ('/home/viewSession/([^/]+)?', ViewSession),
-                               ('/api/apiTunes', ApiTunes)],
+                               ('/api/apiTunes/([^/]+)?', ApiTunes),
+                               ('/api/apiSessions', ApiSessions),
+                               ('/api/apiTunesInSessions', ApiTunesInSessions),
+                               ('/api/apiRythmes', ApiRythmes)],
                                debug=True)

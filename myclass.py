@@ -85,16 +85,6 @@ class Tune(ndb.Model):
     pdf_file = ndb.StringProperty()
     id_rythme = ndb.IntegerProperty()
 
-    def creat_dict(self):  # create a dictionary to be send to the jinja interpreter
-        dict = {}
-        dict["name"] = self.name
-        dict["html"] = self.name.replace(" ","")+".html"
-        dict["image_key"] = self.image_key
-        dict["key"] = self.key.urlsafe()
-        dict["type_dance"] = self.type_dance
-        dict["image_line_key"] = self.image_line_key
-        return dict
-
 class Session(ndb.Model):
     name_session = ndb.StringProperty()
     image_session=ndb.StringProperty()
