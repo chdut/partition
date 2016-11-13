@@ -29,7 +29,7 @@ class Tune_tonsql(webapp2.RequestHandler):
         r_db = db.store_result()
         b_tunes = r_db.fetch_row(0,1)
         for tune in b_tunes:
-            my_tune= Tune(id_tune=tune["id_tune"], titre=tune["titre"], auteur=tune["auteur"], id_rythme=tune["id_rythme"], ref_tune=tune["ref_tune"], text_ly=tune["text_ly"], image_file=tune["image_file"], pdf_file=tune["image_file"])
+            my_tune= Tune(id_tune=tune["id_tune"], titre=tune["titre"], auteur=tune["auteur"], id_rythme=tune["id_rythme"], ref_tune=tune["ref_tune"], text_ly=tune["text_ly"], image_file=tune["image_file"], pdf_file=tune["pdf_file"])
             my_tune.put()
         self.redirect("/admin/")
 
