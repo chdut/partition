@@ -98,6 +98,17 @@ class ApiTunes(webapp2.RequestHandler):
         dictionary.pop('Rythme', None)
         tune.populate(**dictionary)
         tune.put()
+    
+    def post(self, id_tune):
+        dictionary = json.loads(self.request.body)
+        tune = Tune()
+        dictionary.pop('Rythme', None)
+        tune.populate(**dictionary)
+        new_id = Tune().query().order(-Tune.id_tune).get().id_tune + 1
+        tune.id_tune=new_id
+        tune.put()
+        self.response.headers['Content-Type'] = 'application/json'  
+        self.response.out.write(json.dumps(tune.to_dict()))
 
 class ApiSessions(webapp2.RequestHandler):
     def get(self):
