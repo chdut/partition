@@ -111,12 +111,30 @@ class ApiTunes(webapp2.RequestHandler):
         self.response.out.write(json.dumps(tune.to_dict()))
 
 class ApiSessions(webapp2.RequestHandler):
-    def get(self):
+    def get(self, id_session):
         b_session=Session.query().order(Session.name_session)
         result = []
         for session in b_session:
             result.append(session.to_dict())
         self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps(result))
+
+    def put(self, id_session):
+        dictionary = json.loads(self.request.body)
+        session = Session().query(Session.id_session==int(id_session)).get()
+        dictionary.pop( 'Rythme', None)
+        session.populate(**dictionary)
+        session.put()
+
+    def post(self, id_session):
+        dictionary = json.loads(self.request.body)
+        session = Session()
+        dictionary.pop('Rythm', None)
+        session.populate(**dictionary)
+        new_id = Session.query().order(-Session.id_session).get(). id_session + 1
+        session.id_session = new_id
+        session.put()
+        self.response.headers['Content-Type'] = 'applictation/json'
         self.response.out.write(json.dumps(result))
 
 class ApiRythmes(webapp2.RequestHandler):
@@ -129,7 +147,7 @@ class ApiRythmes(webapp2.RequestHandler):
         self.response.out.write(json.dumps(result))
         
 class ApiTunesInSessions(webapp2.RequestHandler):
-     def get(self):
+    def get(self, id_session):
         b_tunesInSessions=Tune_in_session.query()
         result = []
         for tunesInSession in b_tunesInSessions:
@@ -137,6 +155,16 @@ class ApiTunesInSessions(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps(result))
 
+    def post(self, id_session):
+        dictionary = json.loads(self.request.body)
+        tis = Tune_in_session()
+        tis.populate(**dictionary)
+        tis.put()
+
+    def delete(self, id_session):
+        l_tis = Tune_in_session.query(Tune_in_session.id_session==int(id_session))
+        for tis in l_tis:
+           tis.key.delete()
    
 
 
@@ -146,7 +174,7 @@ app = webapp2.WSGIApplication([('/', Main),
                                ('/home/sessions', ListSession),
                                ('/home/viewSession/([^/]+)?', ViewSession),
                                ('/api/apiTunes/([^/]+)?', ApiTunes),
-                               ('/api/apiSessions/', ApiSessions),
-                               ('/api/apiTunesInSessions/', ApiTunesInSessions),
+                               ('/api/apiSessions/([^/]+)?', ApiSessions),
+                               ('/api/apiTunesInSessions/([^/]+)?', ApiTunesInSessions),
                                ('/api/apiRythmes', ApiRythmes)],
                                debug=True)
