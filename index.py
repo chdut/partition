@@ -129,13 +129,13 @@ class ApiSessions(webapp2.RequestHandler):
     def post(self, id_session):
         dictionary = json.loads(self.request.body)
         session = Session()
-        dictionary.pop('Rythm', None)
+        dictionary.pop('Rythme', None)
         session.populate(**dictionary)
         new_id = Session.query().order(-Session.id_session).get(). id_session + 1
         session.id_session = new_id
         session.put()
         self.response.headers['Content-Type'] = 'applictation/json'
-        self.response.out.write(json.dumps(result))
+        self.response.out.write(json.dumps(session.to_dict()))
 
 class ApiRythmes(webapp2.RequestHandler):
     def get(self):

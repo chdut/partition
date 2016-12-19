@@ -1,5 +1,3 @@
-application: tune-2000
-version: 2
 runtime: python27
 api_version: 1
 threadsafe : yes
@@ -36,7 +34,7 @@ libraries:
 env_variables:
     CLOUDSQL_CONNECTION_NAME: tune-2000:us-central1:partoteque
     CLOUDSQL_USER: root
-    CLOUDSQL_PASSWORD: bbbbb
+    CLOUDSQL_PASSWORD: ETQNTtNc8qt9RuP1TK2l
     DEV_CONNECTION_NAME: tunemanger
     DEV_USER: mysql
     DEV_PASSWORD: 2NGBtRcUv0BZDaED
