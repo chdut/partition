@@ -27,15 +27,7 @@ libraries:
   version: "2.5.2"
 - name: jinja2
   version: latest
-- name: MySQLdb
-  version: "latest"
 
   # [START env_variables]
 env_variables:
-    CLOUDSQL_CONNECTION_NAME: tune-2000:us-central1:partoteque
-    CLOUDSQL_USER: root
-    CLOUDSQL_PASSWORD: ETQNTtNc8qt9RuP1TK2l
-    DEV_CONNECTION_NAME: tunemanger
-    DEV_USER: mysql
-    DEV_PASSWORD: 2NGBtRcUv0BZDaED
 # [END env_variables]
