@@ -1,5 +1,8 @@
 lancer en local:
 dev_appserver.py partition
 
-déploiment sur serveur:
-appcfg.py update partition
+déploiment sur serveur: default app.yaml
+gcloud app deploy
+
+déploiment des index:
+gcloud app deploy index.yaml
