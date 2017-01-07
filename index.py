@@ -24,9 +24,11 @@ class DownloadFile(webapp2.RequestHandler):
         self.response.headers.add_header('content-disposition', 'attachment', filename=file_name.encode('ascii','replace'))
         self.response.out.write(html)
 
-def delete_index_pages():
-    memcache.delete("indexTune")
+def delete_index_pages(id_rythme, session):
+    if not session:
+        memcache.delete("indexTune")
     memcache.delete("indexSession")
+    memcathe.delete("rythme"+str(id_rythme))
 
 class Main(Handler):
     def render_Main(self, list_tunes="", list_rythmes=""):
@@ -61,13 +63,18 @@ class ListSession(Handler):
 
 
 class ViewTune(Handler):
-    def render_Main(self, tune=""):
-        self.render("show_tune.html", tune=tune)
+    def render_Main(self, tune="",list_siblings=""):
+        self.render("show_tune.html", tune=tune, list_siblings=list_siblings)
 
     def get(self, id_tune):
-        b_tunes =  Tune.query(Tune.id_tune==int(id_tune))
+        b_tunes =  Tune.query(Tune.id_tune==int(id_tune))       
         if (b_tunes) :
-            self.render_Main(b_tunes.get())
+            tune = b_tunes.get()
+            list_siblings = memcache.get("rythme" + str(tune.id_rythme))
+            if list_siblings is None:
+                list_siblings =self.render_str('dropdown_tunes.html', list_siblings=Tune.query(projection=('id_tune', 'titre')).filter(Tune.id_rythme==tune.id_rythme).order(Tune.titre))
+                memcache.add(key="rythme" + str(tune.id_rythme), value=list_siblings)
+            self.render_Main(tune, list_siblings)
         else :
             self.error(404)
 
@@ -100,7 +107,7 @@ class ApiTunes(webapp2.RequestHandler):
         tune = Tune.query(Tune.id_tune==int(id_tune)).get()
         dictionary.pop('Rythme', None)
         tune.populate(**dictionary)
-        delete_index_pages();
+        delete_index_pages(tune.id_rythme, False);
         tune.put()
     
     def post(self, id_tune):
@@ -110,6 +117,7 @@ class ApiTunes(webapp2.RequestHandler):
         tune.populate(**dictionary)
         new_id = Tune().query().order(-Tune.id_tune).get().id_tune + 1
         tune.id_tune=new_id
+        delete_index_pages(tune.id_rythme, False);
         tune.put()
         self.response.headers['Content-Type'] = 'application/json'
         delete_index_pages
@@ -129,7 +137,7 @@ class ApiSessions(webapp2.RequestHandler):
         session = Session().query(Session.id_session==int(id_session)).get()
         dictionary.pop( 'Rythme', None)
         session.populate(**dictionary)
-        delete_index_pages()
+        delete_index_pages(session.id_rythme, True)
         session.put()
 
     def post(self, id_session):
@@ -141,7 +149,7 @@ class ApiSessions(webapp2.RequestHandler):
         session.id_session = new_id
         session.put()
         self.response.headers['Content-Type'] = 'applictation/json'
-        delete_index_pages()
+        delete_index_pages(session.id_rythme, True);
         self.response.out.write(json.dumps(session.to_dict()))
 
 class ApiRythmes(webapp2.RequestHandler):

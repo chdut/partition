@@ -1,5 +1,10 @@
 {% extends "base.html" %}
-
+{% block navbar %}
+<ul class="nav navbar-nav  navbar-right">
+	{{ list_siblings|safe }}
+	<li><a class="" href="/home/download/{{tune.pdf_file}}?file_name={{tune.titre}}" download="{{tune.titre}}.pdf"><span class="glyphicon glyphicon-save"></span>PDF</a></li>
+</ul>
+{% endblock %}
 {% block content %}
 <div class="container body-content">
 	<div class="plain" id="view">
