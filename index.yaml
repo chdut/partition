@@ -10,13 +10,13 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-- kind: Tune_in_session
-  properties:
-  - name: id_session
-  - name: pos
-
 - kind: Tune
   properties:
   - name: id_rythme
   - name: titre
   - name: id_tune
+
+- kind: Tune_in_session
+  properties:
+  - name: id_session
+  - name: pos

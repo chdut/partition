@@ -123,6 +123,11 @@ class ApiTunes(webapp2.RequestHandler):
         delete_index_pages
         self.response.out.write(json.dumps(tune.to_dict()))
 
+    def delete(self, id_tune):
+        tune = Tune.query(Tune.id_tune==id_tune).get()
+        if tune:
+            tune.key.delete()
+
 class ApiSessions(webapp2.RequestHandler):
     def get(self, id_session):
         b_session=Session.query().order(Session.name_session)
