@@ -28,7 +28,7 @@ def delete_index_pages(id_rythme, session):
     if not session:
         memcache.delete("indexTune")
     memcache.delete("indexSession")
-    memcathe.delete("rythme"+str(id_rythme))
+    memcache.delete("rythme"+str(id_rythme))
 
 class Main(Handler):
     def render_Main(self, list_tunes="", list_rythmes=""):
