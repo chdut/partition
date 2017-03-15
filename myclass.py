@@ -55,6 +55,7 @@ class Tune(ndb.Model):
     titre = ndb.StringProperty()  # name of the tune
     auteur = ndb.StringProperty()
     text_ly = ndb.TextProperty()
+    chords = ndb.TextProperty()
     image_file = ndb.StringProperty()
     pdf_file = ndb.StringProperty()
     id_rythme = ndb.IntegerProperty()

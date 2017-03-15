@@ -2,7 +2,9 @@ lancer en local:
 dev_appserver.py partition
 
 déploiment sur serveur: default app.yaml
-gcloud app deploy
+gcloud app deploy --project tune-2000
 
 déploiment des index:
 gcloud app deploy index.yaml
+
+

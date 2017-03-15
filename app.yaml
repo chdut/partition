@@ -1,7 +1,9 @@
 runtime: python27
 api_version: 1
 threadsafe : yes
-
+basic_scaling:
+  max_instances: 2
+  idle_timeout: 10m
 default_expiration: "1d"
 
 handlers : 

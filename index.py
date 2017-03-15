@@ -117,14 +117,13 @@ class ApiTunes(webapp2.RequestHandler):
         tune.populate(**dictionary)
         new_id = Tune().query().order(-Tune.id_tune).get().id_tune + 1
         tune.id_tune=new_id
-        delete_index_pages(tune.id_rythme, False);
         tune.put()
         self.response.headers['Content-Type'] = 'application/json'
-        delete_index_pages
+        delete_index_pages(tune.id_rythme, False)
         self.response.out.write(json.dumps(tune.to_dict()))
 
     def delete(self, id_tune):
-        tune = Tune.query(Tune.id_tune==id_tune).get()
+        tune = Tune.query(Tune.id_tune==int(id_tune)).get()
         if tune:
             tune.key.delete()
 
@@ -150,12 +149,17 @@ class ApiSessions(webapp2.RequestHandler):
         session = Session()
         dictionary.pop('Rythme', None)
         session.populate(**dictionary)
-        new_id = Session.query().order(-Session.id_session).get(). id_session + 1
+        new_id = Session().query().order(-Session.id_session).get().id_session + 1
         session.id_session = new_id
         session.put()
-        self.response.headers['Content-Type'] = 'applictation/json'
+        self.response.headers['Content-Type'] = 'application/json'
         delete_index_pages(session.id_rythme, True);
         self.response.out.write(json.dumps(session.to_dict()))
+
+    def delete(self, id_session):
+        session = Session.query(Session.id_session==int(id_session)).get()
+        if session:
+            session.key.delete()
 
 class ApiRythmes(webapp2.RequestHandler):
     def get(self):
@@ -187,6 +191,27 @@ class ApiTunesInSessions(webapp2.RequestHandler):
            tis.key.delete()
    
 
+class InitLocal(webapp2.RequestHandler):
+    def get(self):
+        b_rythme = Rythm()
+        b_rythme.nom_rythme = "test"
+        b_rythme.id_rythme= 1
+        b_rythme.put()
+        b_tune = Tune()
+        b_tune.titre = "default"
+        b_tune.id_tune = 1
+        b_tune.id_rythme = 1
+        b_tune.put()
+        b_session = Session()
+        b_session.name_session = "test"
+        b_session.id_session = 1
+        b_session.id_rythme = 1
+        b_session.put()
+        b_tuneInSession = Tune_in_session()
+        b_tuneInSession.id_session = b_session.id_session
+        b_tuneInSession.id_tune = b_tune.id_tune
+        b_tuneInSession.pos = 0
+        b_tuneInSession.put()
 
 app = webapp2.WSGIApplication([('/', Main),
                                ('/home/view/([^/]+)?', ViewTune),
@@ -196,5 +221,6 @@ app = webapp2.WSGIApplication([('/', Main),
                                ('/api/apiTunes/([^/]+)?', ApiTunes),
                                ('/api/apiSessions/([^/]+)?', ApiSessions),
                                ('/api/apiTunesInSessions/([^/]+)?', ApiTunesInSessions),
-                               ('/api/apiRythmes', ApiRythmes)],
+                               ('/api/apiRythmes', ApiRythmes),
+                               ('/initlocal', InitLocal)],
                                debug=True)
