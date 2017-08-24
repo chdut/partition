@@ -54,6 +54,7 @@ class Tune(ndb.Model):
     ref_tune = ndb.StringProperty()
     titre = ndb.StringProperty()  # name of the tune
     auteur = ndb.StringProperty()
+    youtubelink = ndb.StringProperty()
     text_ly = ndb.TextProperty()
     chords = ndb.TextProperty()
     image_file = ndb.StringProperty()

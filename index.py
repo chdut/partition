@@ -38,7 +38,7 @@ class Main(Handler):
 
     def get(self):
         html = memcache.get("indexTune")
-        if html is not None:  
+        if html is not None and False:  
             self.write(html)
         else:           
             b_rythmes = Rythm.query()
@@ -201,6 +201,7 @@ class InitLocal(webapp2.RequestHandler):
         b_tune.titre = "default"
         b_tune.id_tune = 1
         b_tune.id_rythme = 1
+        b_tune.id_youtubelink = "http://youtu.be/0r3cEKZiLmg"
         b_tune.put()
         b_session = Session()
         b_session.name_session = "test"

@@ -17,10 +17,23 @@
             </div>
 		</div>
 		
-
 	{% endfor %}
+	<div class="modal fade" tabindex="-1" role="dialog" id="modal-video">
+		<div class="modal-dialog" role="document">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			</div>
+			<div class="modal-body">
+				<div style="position:relative;height:0;padding-bottom:75.0%"><iframe id="youtube" src="https://www.youtube.com/embed/a6drasfZu4c?ecver=2" width="480" height="360" frameborder="0" style="position:absolute;width:100%;height:100%;left:0" allowfullscreen></iframe></div>
+			</div>
+		  </div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
 	<script type="text/javascript">
 	function to_execute() {
+		console.log("test01");
 		var HTMLtuneLink = "<li class=\"row list-group-item\">"+
                            "<div class=\"col-sm-8\" style=\"cursor: pointer;\" onclick=\"window.location='/home/view/%id_tune%';\">"+
                                 "<p>%titre%</p>"+
@@ -31,7 +44,9 @@
                             "<div class=\"col-sm-2 btn-group\" role=\"group\">"+
                                 "<a class=\"btn btn-primary\" href=\"/home/view/%id_tune%\"><span class=\"glyphicon glyphicon-eye-open\"></span></a>"+
                                 "<a class=\"btn btn-primary\" href=\"/home/download/%pdf_file%\?file_name=%file_name%\" download=\"%titre%.pdf\"><span class=\"glyphicon glyphicon-save\"></span></a>"+
-                            "</div></li>"
+								"<div class=\"btn btn-primary %hideyoutubelink%\" data-toggle=\"modal\" data-target=\"#modal-video\" data-link=\"%youtubelink%\"><span class=\"glyphicon glyphicon-triangle-right \"></span></div>" +
+                            "</div>" +
+							"</li>"
 		{% for tune in list_tunes %}
 			var tuneLink = HTMLtuneLink.replace("%id%","{{tune.id_tune}}");
 			tuneLink = tuneLink.replace("%id_tune%","{{tune.id_tune}}");
@@ -41,9 +56,27 @@
 			tuneLink = tuneLink.replace("%pdf_file%","{{tune.pdf_file}}");
 			tuneLink = tuneLink.replace("%file_name%","{{tune.titre}}");
 			tuneLink = tuneLink.replace("%auteur%","{{tune.auteur}}");
+			var youtubelink = "{{tune.youtubelink}}";
+			if (youtubelink === "None") {
+				tuneLink = tuneLink.replace("%hideyoutubelink%", "hide");
+			} else {
+				tuneLink = tuneLink.replace("%hideyoutubelink%", "");
+			}
+			tuneLink = tuneLink.replace("%youtubelink%", "{{tune.youtubelink}}")
 			$("#l{{tune.id_rythme}}").append(tuneLink);
 		{% endfor %}
+		console.log("test02");
+		$('#modal-video').on('show.bs.modal', function (event) {
+			
+  			var button = $(event.relatedTarget); // Button that triggered the modal
+  			var youtubelink = button.data('link'); // Extract info from data-* attributes
+  			// If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+  			// Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+  			var modal = $(this);
+  			modal.find('.modal-body iframe')[0].src = youtubelink;
+		});
 	};
+	
 	</script>
 	</div>
 </div>
