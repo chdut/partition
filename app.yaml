@@ -11,6 +11,19 @@ handlers :
 -  url: /sitemaps.xml
    static_files : static/sitemaps.xml
    upload : static/sitemaps.xml
+-  url: /manifest.json
+   static_files : static/manifest.json
+   upload : static/manifest.json
+-  url: /favicon.ico
+   static_files : static/favicon.png
+   upload : static/favicon.png
+-  url: /icon-192.png
+   static_files : static/icon-192.png
+   upload : static/icon-192.png   
+-  url: /service-worker.js
+   static_files : static/service-worker.js
+   upload : static/service-worker.js
+   mime_type : application/javascript
 -  url: /static
    static_dir: static
 -  url: /fonts

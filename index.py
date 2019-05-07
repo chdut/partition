@@ -72,7 +72,7 @@ class ViewTune(Handler):
             tune = b_tunes.get()
             list_siblings = memcache.get("rythme" + str(tune.id_rythme))
             if list_siblings is None:
-                list_siblings =self.render_str('dropdown_tunes.html', list_siblings=Tune.query(projection=('id_tune', 'titre')).filter(Tune.id_rythme==tune.id_rythme).order(Tune.titre))
+                list_siblings = self.render_str('dropdown_tunes.html', list_siblings=Tune.query(projection=('id_tune', 'titre')).filter(Tune.id_rythme==tune.id_rythme).order(Tune.titre))
                 memcache.add(key="rythme" + str(tune.id_rythme), value=list_siblings)
             self.render_Main(tune, list_siblings)
         else :

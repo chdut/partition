@@ -33,7 +33,6 @@
 
 	<script type="text/javascript">
 	function to_execute() {
-		console.log("test01");
 		var HTMLtuneLink = "<li class=\"row list-group-item\">"+
                            "<div class=\"col-sm-8\" style=\"cursor: pointer;\" onclick=\"window.location='/home/view/%id_tune%';\">"+
                                 "<p>%titre%</p>"+
@@ -65,7 +64,6 @@
 			tuneLink = tuneLink.replace("%youtubelink%", "{{tune.youtubelink}}")
 			$("#l{{tune.id_rythme}}").append(tuneLink);
 		{% endfor %}
-		console.log("test02");
 		$('#modal-video').on('show.bs.modal', function (event) {
 			
   			var button = $(event.relatedTarget); // Button that triggered the modal
